@@ -39,7 +39,7 @@ chmod +x md2pdf.py
 ./md2pdf.py RNN.md
 ```
 
-默认在 Markdown 文件旁生成同名 PDF。例如 `RNN.md` 会生成 `RNN.pdf`。也可以指定输出路径：
+默认在脚本所在目录的 `pdf/` 子目录生成同名 PDF。例如 `md/RNN.md` 会生成 `pdf/RNN.pdf`，目录不存在时会自动创建。也可以指定输出路径：
 
 ```bash
 ./md2pdf.py notes.md -o output/notes.pdf

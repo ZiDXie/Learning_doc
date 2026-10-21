@@ -206,7 +206,7 @@ def render_markdown(source, math_renderer):
 def main():
     parser = argparse.ArgumentParser(description="Convert Markdown files to PDF with Prince.")
     parser.add_argument("input", type=Path, help="Input .md file")
-    parser.add_argument("-o", "--output", type=Path, help="Output PDF path (default: alongside input)")
+    parser.add_argument("-o", "--output", type=Path, help="Output PDF path (default: pdf/ beside this script)")
     args = parser.parse_args()
 
     source = args.input.expanduser()
@@ -217,7 +217,7 @@ def main():
         print("Error: Prince is required. Install it from https://www.princexml.com/ and retry.", file=sys.stderr)
         return 1
 
-    destination = (args.output or source.with_suffix(".pdf")).expanduser()
+    destination = (args.output or Path(__file__).resolve().parent / "pdf" / (source.stem + ".pdf")).expanduser()
     destination.parent.mkdir(parents=True, exist_ok=True)
     try:
         math_renderer = MathRenderer()
