@@ -1,3 +1,4 @@
-*.doc
-*.docx
+/*.doc
+/*.docx
 /__pycache__
+/*.pdf
