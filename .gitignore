@@ -1,4 +1,6 @@
 /*.doc
 /*.docx
-/__pycache__
+__pycache__
 /*.pdf
+.vscode
+data/
