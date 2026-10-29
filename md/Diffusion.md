@@ -8,13 +8,13 @@
 
 ![1793031779589](image/Difussion/1793031779589.png)
 
-前向传播是一个加噪声的过程，该过程视为[马尔可夫过程](https://zh.wikipedia.org/wiki/%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E9%93%BE)，加入的噪声符合[高斯分布](https://zh.wikipedia.org/zh-sg/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83)。从输入图像 $x_0$ 开始，经过 $t$ 个步数，得到 $x_t$ 时刻的包含噪声的图像。上一时刻的图像为 $x_{t-1}$。定义 $\beta_t$ 为前向传播过程中添加高斯噪声方差调整参数。$\alpha_t = 1 - \beta_t$。根据马尔可夫的性质，$x_t$ 时刻与 $x_{t-1}$ 时刻有关。定义如下公式：
+前向传播是一个加噪声的过程，该过程视为[马尔可夫过程](https://zh.wikipedia.org/wiki/%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E9%93%BE)，加入的噪声符合[高斯分布](https://zh.wikipedia.org/zh-sg/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83)。从输入图像 $x_0$ 开始，经过 $t$ 个步数，得到 $x_t$ 时刻的包含噪声的图像。上一时刻的图像为 $x_{t-1}$。定义 $\beta_t$ 为前向传播过程中添加高斯噪声方差调整参数。 $\alpha_t = 1 - \beta_t$ 。根据马尔可夫的性质， $x_t$ 时刻与 $x_{t-1}$ 时刻有关。定义如下公式：
 
 $$
 x_t = \sqrt{\alpha_{t}} \, x_{t-1} + \sqrt{1 - \alpha_t} \, \epsilon_{t-1}
 $$
 
-其中 $\epsilon$ 为添加的噪声项，符合高斯分布 $\epsilon \sim \mathcal{N}(0, I)$。在论文中，步数 $t$ 取 1000。$\beta_t$ 为线性递增策略，从 0.0001 递增到 0.02。为什么要这样做呢。因为在前期，图像分布均匀，只须加入少量的噪声就能改变其原始分布。而到后期，需要添加更多噪声才可以保持相同的噪声扩散分布。
+其中 $\epsilon$ 为添加的噪声项，符合高斯分布 $\epsilon \sim \mathcal{N}(0, I)$ 。在论文中，步数 $t$ 取 1000。 $\beta_t$ 为线性递增策略，从 0.0001 递增到 0.02。为什么要这样做呢。因为在前期，图像分布均匀，只须加入少量的噪声就能改变其原始分布。而到后期，需要添加更多噪声才可以保持相同的噪声扩散分布。
 
 向前推导，得到：
 
@@ -28,7 +28,7 @@ $$
 x_t = \sqrt{\alpha_t \alpha_{t-1}} x_{t-2} + \left( \sqrt{\alpha_t (1 - \alpha_{t-1})} \epsilon_{t-2} + \sqrt{1 - \alpha_t} \epsilon_{t-1} \right)
 $$
 
-由于每一步所添加的噪声都符合$\epsilon \sim \mathcal{N}(0, I)$ ，由高斯分布的性质，括号里面的式子可以简化为
+由于每一步所添加的噪声都符合 $\epsilon \sim \mathcal{N}(0, I)$ ，由高斯分布的性质，括号里面的式子可以简化为
 
 $$
 x_t = \sqrt{\alpha_t \alpha_{t-1}} x_{t-2} + \sqrt{1 - \alpha_t \alpha_{t-1}} {\epsilon}_{t-2}
@@ -52,9 +52,9 @@ $$
 
 - 随机采样时间步 $t \sim \text{Uniform}(1, \dots, T)$
 
-- 采样噪声$\epsilon \sim \mathcal{N}(0, I)$
+- 采样噪声 $\epsilon \sim \mathcal{N}(0, I)$
 
-直接生成得到。最终得到$q(x_{1:T} | x_0)$ ，$q(x_t|x_0) = \mathcal{N}(x_t; \sqrt{\bar{\alpha}_t}x_0, (1 - \bar{\alpha}_t)I)$ ，对应论文算法1部分。其中第五项 $\nabla_\theta \left\| \boldsymbol{\epsilon} - \boldsymbol{\epsilon}_\theta \left( \sqrt{\bar{\alpha}_t} \mathbf{x}_0 + \sqrt{1 - \bar{\alpha}_t} \boldsymbol{\epsilon}, t \right) \right\|^2$ 为用噪声预测器与真实噪声进行均方误差MSE的损失计算，随后求梯度进行参数的更新。
+直接生成得到。最终得到 $q(x_{1:T} | x_0)$ ， $q(x_t|x_0) = \mathcal{N}(x_t; \sqrt{\bar{\alpha}_t}x_0, (1 - \bar{\alpha}_t)I)$ ，对应论文算法1部分。其中第五项 $\nabla_\theta \left\| \boldsymbol{\epsilon} - \boldsymbol{\epsilon}_\theta \left( \sqrt{\bar{\alpha}_t} \mathbf{x}_0 + \sqrt{1 - \bar{\alpha}_t} \boldsymbol{\epsilon}, t \right) \right\|^2$ 为用噪声预测器与真实噪声进行均方误差MSE的损失计算，随后求梯度进行参数的更新。
 
 ![fagwegawegawe.png](./pictures/fagwegawegawe.png)
 
@@ -64,7 +64,7 @@ $$
 
 反向传播是从一张纯噪声图中逐步去噪得到干净的图片，这一过程是正向加噪的逆过程，与正向过程中设计的参数$\beta_t$ 有关。
 
-首先从标准高斯分布$x_T \sim \mathcal{N}(0, I)$ ，正向加噪的过程中，当最终步$t=T$ 时，$x_T$ 接近纯噪声图片，符合标准高斯分布。反向过程中，我们希望能够从$x_T$ 估计原始图片$x_0$， 由上述公式得到$x_{0}$ 与$x_t$ 的关系：
+首先从标准高斯分布 $x_T \sim \mathcal{N}(0, I)$ ，正向加噪的过程中，当最终步 $t=T$ 时， $x_T$ 接近纯噪声图片，符合标准高斯分布。反向过程中，我们希望能够从 $x_T$ 估计原始图片 $x_0$ ， 由上述公式得到 $x_{0}$ 与 $x_t$ 的关系：
 
 $$
 x_0= \frac{x_t-\sqrt{1-\bar\alpha_t}\epsilon} {\sqrt{\bar\alpha_t}}
@@ -82,13 +82,13 @@ $$
 x_0= \frac{x_t-\sqrt{1-\bar\alpha_t}\epsilon_\theta(x_t,t)} {\sqrt{\bar\alpha_t}}
 $$
 
-为了得到$q(x_{t-1}|x_t)$ ，在推导训练过程中，我们可以使用已知的当前图片$x_T$和$x_{0}$ 来求出后验分布$q(x_{t-1}\mid x_t,x_0)$ ，根据贝叶斯公式：
+为了得到 $q(x_{t-1}|x_t)$ ，在推导训练过程中，我们可以使用已知的当前图片 $x_T$和$x_{0}$ 来求出后验分布 $q(x_{t-1}\mid x_t,x_0)$ ，根据贝叶斯公式：
 
 $$
 q(x_{t-1} \mid x_t, x_0) = \frac{q(x_t \mid x_{t-1})q(x_{t-1} \mid x_0)}{q(x_t \mid x_0)}
 $$
 
-整理公式带入前面前向推导的各式，具体过程可看论文[arXiv:2208.11970](https://arxiv.org/abs/2208.11970)，可以得到$q(x_{t-1}\mid x_t,x_0)$ 后验均值方差满足：
+整理公式带入前面前向推导的各式，具体过程可看论文[arXiv:2208.11970](https://arxiv.org/abs/2208.11970)，可以得到 $q(x_{t-1}\mid x_t,x_0)$ 后验均值方差满足：
 
 $$
 \tilde{\mu}_t = \frac{1}{\sqrt{\alpha_t}} \left( x_t - \frac{\beta_t}{\sqrt{1 - \bar{\alpha}_t}} \epsilon \right)
@@ -109,13 +109,13 @@ x_t-\frac{\beta_t}{\sqrt{1-\bar\alpha_t}}
 \right)
 $$
 
-使用神经网络$p_\theta(x_{t-1}|x_t)$ 拟合逆向过程 $q(x_{t-1}|x_t)$满足分布
+使用神经网络 $p_\theta(x_{t-1}|x_t)$ 拟合逆向过程 $q(x_{t-1}|x_t)$满足分布
 
 $$
 p_\theta(x_{t-1} \mid x_t) = \mathcal{N} \left( x_{t-1}; \mu_\theta(x_t, t), \sigma_t^2 I \right)
 $$
 
-在论文中，高斯分布的方差直接取值为$\beta_t$ ，因此只有均值是需要网络去估计的。使用高斯的重参数化形式：
+在论文中，高斯分布的方差直接取值为 $\beta_t$ ，因此只有均值是需要网络去估计的。使用高斯的重参数化形式：
 
 $$
 x_{t-1} = \mu_\theta(x_t, t) + \sigma_t z
@@ -165,7 +165,7 @@ $$
 \mathcal{L} = \mathbb{E}_q[-\log p_\theta(x_0)]
 $$
 
-但是在生成真实图片的过程中，会经过多个中间的隐变量。在训练过程中，只有真实的图片$x_0$ ，并没有一条已经存在的反向生成轨迹。我们最终希望得到生成图片$x_0$ 的概率密度最大。因此计算$p_\theta(x_{0})$ 时，需要将整个隐藏状态考虑进去。给定起点噪声分布$x_T$ ，DDPM将反向过程建模定义为：
+但是在生成真实图片的过程中，会经过多个中间的隐变量。在训练过程中，只有真实的图片 $x_0$ ，并没有一条已经存在的反向生成轨迹。我们最终希望得到生成图片 $x_0$ 的概率密度最大。因此计算 $p_\theta(x_{0})$ 时，需要将整个隐藏状态考虑进去。给定起点噪声分布 $x_T$ ，DDPM将反向过程建模定义为：
 
 $$
 p_\theta(x_{0:T}) = p(x_T) \prod_{t=1}^T p_\theta(x_{t-1} \mid x_t)
@@ -177,7 +177,7 @@ $$
 
 我们面对的是一个极高维度的积分，通常不能直接算出 $p_\theta(x_0)$的精确值。虽然在数学上完全正确，却不能直接作为一个简单的训练算法。论文中采用了变分下界ELBO的思想。假设我们想知道一个数 $A$，但是直接计算它很困难。如果我们能找到一个容易计算的数 $B$，并且保证
 
-$B\leq A$，那么  $B$就是$A$的一个下界。
+$B\leq A$，那么  $B$就是 $A$的一个下界。
 
 扩散模型可以看作是一个多层的VAE。扩散模型想要优化的问题同VAE相似。VAE 引入一个潜变量 $z$，希望用它描述与图片有关的潜在因素。因为
 
@@ -191,7 +191,7 @@ $$
 \log p_\theta(x) = \int q_\phi(z \mid x) \log p_\theta(x) \, dz
 $$
 
-由全概率公式$p_\theta(z, x) = p_\theta(z \mid x)p_\theta(x)$，上式可改写为
+由全概率公式 $p_\theta(z, x) = p_\theta(z \mid x)p_\theta(x)$ ，上式可改写为
 
 $$
 \log p_\theta(x) = \int q_\phi(z \mid x) \log \left( \frac{p_\theta(z, x)}{p_\theta(z \mid x)} \right) dz
@@ -210,7 +210,7 @@ $$
 D_{\text{KL}} (q_\phi(z \mid x) \parallel p_\theta(z \mid x)) = \int q_\phi(z \mid x) \log \frac{q_\phi(z \mid x)}{p_\theta(z \mid x)} dz
 $$
 
-由KL散度的性质$D_{\text{KL}}(q \parallel p) > 0$，最终可将目标$log p_\theta(x)$ 改写成：
+由KL散度的性质 $D_{\text{KL}}(q \parallel p) > 0$ ，最终可将目标 $log p_\theta(x)$ 改写成：
 
 $$
 \begin{aligned}
@@ -227,13 +227,11 @@ $$
 
 $$
 \begin{aligned}
-\text{ELBO}(x) &= \mathbb{E}_{q_\phi(z|x)} \left[ \log \frac{p_\theta(x \mid z)p(z)}{q_\phi(z \mid x)} \right] \\[8pt]
-&= \mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x \mid z)] \\[8pt]
-&\quad - D_{\text{KL}}(q_\phi(z \mid x) \parallel p(z))
+\text{ELBO}(x) &= \mathbb{E}_{q_\phi(z|x)} \left[ \log \frac{p_\theta(x \mid z)p(z)}{q_\phi(z \mid x)} \right] \\[8pt]&= \mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x \mid z)] \\[8pt]&\quad - D_{\text{KL}}(q_\phi(z \mid x) \parallel p(z))
 \end{aligned}
 $$
 
-训练时，VAE最大化ELBO,等价于最小化负ELBO，从而近似最小化负似然对数。前面提到扩散模型可视为多层的VAE，VAE中的$z$为隐藏的中间量。将扩散模型中做一个替换：
+训练时，VAE最大化ELBO,等价于最小化负ELBO，从而近似最小化负似然对数。前面提到扩散模型可视为多层的VAE，VAE中的 $z$ 为隐藏的中间量。将扩散模型中做一个替换：
 
 $$
 z \longrightarrow x_{1:T}\\
@@ -260,20 +258,18 @@ $$
 \text{ELBO}_{\text{DDPM}}(x_0) = \mathbb{E}_{q(x_{1:T}|x_0)} \left[ \log \frac{p_\theta(x_{0:T})}{q(x_{1:T} \mid x_0)} \right]
 $$
 
-最小化$-ELBO$，经过一系列推导，具体可看[arXiv:2208.11970](https://arxiv.org/abs/2208.11970) ，最终得到：
+最小化 $-ELBO$ ，经过一系列推导，具体可看[arXiv:2208.11970](https://arxiv.org/abs/2208.11970) ，最终得到：
 
 $$
 L_{\text{VLB}} = \mathbb{E}_{q(\mathbf{x}_{0:T})} \left[ \log \frac{q(\mathbf{x}_{1:T}|\mathbf{x}_0)}{p_\theta(\mathbf{x}_{0:T})} \right]
-\\=
-\mathbb{E}_q \left[ \underbrace{D_{\text{KL}}(q(\mathbf{x}_T|\mathbf{x}_0) \parallel p_\theta(\mathbf{x}_T))}_{L_T} 
-+ \sum_{t>1} \underbrace{D_{\text{KL}}(q(\mathbf{x}_{t-1}|\mathbf{x}_t, \mathbf{x}_0) \parallel p_\theta(\mathbf{x}_{t-1}|\mathbf{x}_t))}_{L_{t-1}} - \underbrace{\log p_\theta(\mathbf{x}_0|\mathbf{x}_1)}_{L_0} \right]
+\\=\mathbb{E}_q \left[ \underbrace{D_{\text{KL}}(q(\mathbf{x}_T|\mathbf{x}_0) \parallel p_\theta(\mathbf{x}_T))}_{L_T} + \sum_{t>1} \underbrace{D_{\text{KL}}(q(\mathbf{x}_{t-1}|\mathbf{x}_t, \mathbf{x}_0) \parallel p_\theta(\mathbf{x}_{t-1}|\mathbf{x}_t))}_{L_{t-1}} - \underbrace{\log p_\theta(\mathbf{x}_0|\mathbf{x}_1)}_{L_0} \right]
 $$
 
 那么我们在训练过程中需要以什么作为我们的训练目标呢，我们对三项做分析。
 
-对于$L_T$，在前向和反向传播的推导中，已知了$q(x_T\mid x_0)$ 由初始参数$\beta$决定，$p(x_T)=\mathcal N(0,I)$，因此，$L_T$ 只是两个已知高斯分布之间的 KL 散度。在训练过程中无法对其学习更新。对于$L_0$，DDPM文中使用简化目标替代整个变分下界，用$L_{simplpe}$近似包括 $L_0​$在内的所有重建目标。
+对于 $L_T$ ，在前向和反向传播的推导中，已知了 $q(x_T\mid x_0)$ 由初始参数 $\beta$ 决定，$p(x_T)=\mathcal N(0,I)$ ，因此， $L_T$ 只是两个已知高斯分布之间的 KL 散度。在训练过程中无法对其学习更新。对于 $L_0$ ，DDPM文中使用简化目标替代整个变分下界，用 $L_{simplpe}$ 近似包括 $L_0​$ 在内的所有重建目标。
 
-对于$L_{t-1}$，在前面的推导中，已知了$q(x_{t-1}\mid x_t,x_0)$ 和$p_\theta(x_{t-1}|x_t)$均满足高斯分布。则他们的KL散度为
+对于 $L_{t-1}$ ，在前面的推导中，已知了 $q(x_{t-1}\mid x_t,x_0)$ 和 $p_\theta(x_{t-1}|x_t)$ 均满足高斯分布。则他们的KL散度为
 
 $$
 D_{\text{KL}}(q \parallel p) = \log \frac{\sigma_p}{\sigma_q} + \frac{\sigma_q^2 + (\mu_q - \mu_p)^2}{2\sigma_p^2} - \frac{1}{2}
@@ -295,7 +291,7 @@ $$
 
 ## 网络框架设计
 
-DDPM使用一个共享参数的时间条件 U-Net 来参数化反向过程的噪声预测器 $ϵ_θ​(x_t​,t)$，U-Net网络输入的是某一时刻的图片$x_t$和该时刻的时间$t$，输出的是对噪声的预测。
+DDPM使用一个共享参数的时间条件 U-Net 来参数化反向过程的噪声预测器 $ϵ_θ​(x_t​,t)$ ，U-Net网络输入的是某一时刻的图片 $x_t$ 和该时刻的时间 $t$ ，输出的是对噪声的预测。
 
 待完善。
 
@@ -315,7 +311,7 @@ $$
 
 **FID (Fréchet Inception Distance)**：FID 将真实图像和生成图像输入预训练的 Inception 网络，提取特征，然后分别用高斯分布近似这些特征的统计分布。比较生成图像与真实图像在 Inception 特征空间中的分布差异（均值和协方差的高斯假设下的 Fréchet 距离）。
 
-设真实图像特征的均值和协方差为$(\mu_r, \Sigma_r)$，生成图像特征的均值和协方差为 $(\mu_g, \Sigma_g)$，FID 定义为：
+设真实图像特征的均值和协方差为 $(\mu_r, \Sigma_r)$ ，生成图像特征的均值和协方差为 $(\mu_g, \Sigma_g)$ ，FID 定义为：
 
 $$
 \begin{aligned}
@@ -342,13 +338,13 @@ Conditional（有条件）： 给模型提供类别标签等条件，再生成�
 
 ### Table1
 
-从Table1可以看出，在无条件任务中，DDPM使用简化目标后相较于其他模型的IS和FID都有非常可观的表现。$L_{simple}$相较于$L$，去掉了权重$w_t =\frac{\beta_t^2}{2\sigma_t^2\alpha_t(1 - \bar{\alpha}_t)}$，为什么效果反而更好呢。
+从Table1可以看出，在无条件任务中，DDPM使用简化目标后相较于其他模型的IS和FID都有非常可观的表现。 $L_{simple}$ 相较于 $L$ ，去掉了权重 $w_t =\frac{\beta_t^2}{2\sigma_t^2\alpha_t(1 - \bar{\alpha}_t)}$ ，为什么效果反而更好呢。
 
-在论文的设置下（$β_1$​=10−4 线性增到 $β_T​$=0.02，*T*=1000），可以发现在t比较小时，加入的噪声比较小，但是此时$w_t$很大，$w_t$随 *t* 增大而下降。那么在训练过程中的损失学习，模型需要花较大的精力去学习噪声相对较少的数据，而对噪声大的数据相对不敏感。但是如果去除了权重，相当于重视了t值较大的数据，对噪声更多的数据有更好的学习能力，对噪声的感知能力更强，因此FID/IS的数据更优。
+在论文的设置下（ $β_1$​ =10−4 线性增到 $β_T​$ =0.02，*T*=1000），可以发现在t比较小时，加入的噪声比较小，但是此时 $w_t$ 很大， $w_t$ 随 *t* 增大而下降。那么在训练过程中的损失学习，模型需要花较大的精力去学习噪声相对较少的数据，而对噪声大的数据相对不敏感。但是如果去除了权重，相当于重视了t值较大的数据，对噪声更多的数据有更好的学习能力，对噪声的感知能力更强，因此FID/IS的数据更优。
 
 ### Table2
 
-从Table2可以看出，使用简化后的$L_{simple}$预测噪声得到的的IS和FID显著优于其他几组实验，学习方差效果反而变差。使用真实的变分界训练模型比使用简化目标函数训练模型能产生更好的代码长度；但后者能产生最佳的样本质量。
+从Table2可以看出，使用简化后的 $L_{simple}$ 预测噪声得到的的IS和FID显著优于其他几组实验，学习方差效果反而变差。使用真实的变分界训练模型比使用简化目标函数训练模型能产生更好的代码长度；但后者能产生最佳的样本质量。
 
 ![屏幕截图_20261029_130257.png](./pictures/屏幕截图_20261029_130257.png)
 
@@ -380,13 +376,13 @@ $$
 x'_t \sim q(x_t|x'_0) = \mathcal{N}(\sqrt{\bar{\alpha}_t}x'_0, (1 - \bar{\alpha}_t)I).
 $$
 
-再对不同的 *λ* 用同一对 $x_0, x'_0$做插值
+再对不同的 *λ* 用同一对 $x_0, x'_0$ 做插值
 
 $$
 \bar{x}_t = (1 - \lambda)x_t + \lambda x'_t, \qquad \lambda \in [0, 1].
 $$
 
-再对$\bar{x}_t$进行重建。
+再对 $\bar{x}_t$进行重建。
 
 ![屏幕截图_20261029_154950.png](./pictures/屏幕截图_20261029_154950.png)
 
